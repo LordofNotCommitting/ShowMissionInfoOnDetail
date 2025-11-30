@@ -4,3 +4,9 @@ Look, often times I don't know where I am at, what I was doing or who I was figh
 
 Expanded version of Redspy's https://steamcommunity.com/sharedfiles/filedetails/?id=3378744839
 But more clear version since I just want screen to tell exactly who my enemy is. That is what matters for your armor pick anyway.
+
+Changelog:
+
+v1.1:
+
+There are mission types where group of mission objective enemy(not the entire mission) have higher tech level. This mod will now show those.
