@@ -38,6 +38,40 @@ namespace ShowMissionInfoOnDetail
 
             Faction enemy_faction = __instance._factions.Get(mission.VictimFactionId, true);
 
+            int bonus_tech_level = 0;
+            string temp_tech_postfix = " (" + color_white_prefix + "+";
+            //tooltip.MissionObjective
+                
+
+
+            switch (mission.ProcMissionType)
+            {
+                case ProceduralMissionType.Ritual:
+                    {
+                        bonus_tech_level = Data.Global.RitualMonsterGroupTechLevelBonus;
+                        temp_tech_postfix += bonus_tech_level + color_postfix + " " + Localization.Get("ui.label.enemy") + " " + Localization.Get("missiontype.Counterattack.name") + ")";
+                        break;
+                    }
+                case ProceduralMissionType.Counterattack:
+                    {
+                        bonus_tech_level = Data.Global.CounterattackMonsterGroupTechLevelBonus;
+                        temp_tech_postfix += bonus_tech_level + color_postfix + " " + Localization.Get("ui.label.enemy") + " " + Localization.Get("missiontype.Ritual.name") + ")";
+                        break;
+                    }
+                case ProceduralMissionType.Infiltration:
+                    {
+                        bonus_tech_level = Data.Global.InfiltrationMonsterGroupTechLevelBonus;
+                        temp_tech_postfix += bonus_tech_level + color_postfix + " " + Localization.Get("ui.label.enemy") + " " + Localization.Get("missiontype.Infiltration.name") + ")";
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            }
+
+
+
             UnityEngine.Color relation_color = Colors.GetFactionColorByReputation(enemy_faction.PlayerReputation);
 
             string hex = ColorUtility.ToHtmlStringRGB(relation_color);
@@ -58,6 +92,10 @@ namespace ShowMissionInfoOnDetail
 
                 enemy_faction_name += " (" + enemy_faction.PlayerReputation + ")";
                 temp_tech_level = enemy_faction.CurrentTechLevel.ToString();
+
+                if (bonus_tech_level > 0) {
+                    temp_tech_level += temp_tech_postfix;
+                }
 
                 temp_mission_type = Localization.Get(string.Format("missiontype.{0}.name", mission.ProcMissionType));
 
