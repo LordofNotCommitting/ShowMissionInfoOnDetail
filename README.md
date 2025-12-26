@@ -7,6 +7,10 @@ But more clear version since I just want screen to tell exactly who my enemy is.
 
 Changelog:
 
+v1.11:
+
+Control and Security missions are now multi-floored and includes bramfatura. So this mod now reflects this change accordingly.
+
 v1.1:
 
 There are mission types where group of mission objective enemy(not the entire mission) have higher tech level. This mod will now show those.
