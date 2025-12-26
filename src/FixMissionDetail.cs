@@ -49,19 +49,19 @@ namespace ShowMissionInfoOnDetail
                 case ProceduralMissionType.Ritual:
                     {
                         bonus_tech_level = Data.Global.RitualMonsterGroupTechLevelBonus;
-                        temp_tech_postfix += bonus_tech_level + color_postfix + " " + Localization.Get("ui.label.enemy") + " " + Localization.Get("missiontype.Counterattack.name") + ")";
+                        temp_tech_postfix += bonus_tech_level + color_postfix + " " + Localization.Get("ui.label.enemy") + " " + Localization.Get("missiontype.Counterattack.name") + " Squad)";
                         break;
                     }
                 case ProceduralMissionType.Counterattack:
                     {
                         bonus_tech_level = Data.Global.CounterattackMonsterGroupTechLevelBonus;
-                        temp_tech_postfix += bonus_tech_level + color_postfix + " " + Localization.Get("ui.label.enemy") + " " + Localization.Get("missiontype.Ritual.name") + ")";
+                        temp_tech_postfix += bonus_tech_level + color_postfix + " " + Localization.Get("ui.label.enemy") + " " + Localization.Get("missiontype.Ritual.name") + " Squad)";
                         break;
                     }
                 case ProceduralMissionType.Infiltration:
                     {
                         bonus_tech_level = Data.Global.InfiltrationMonsterGroupTechLevelBonus;
-                        temp_tech_postfix += bonus_tech_level + color_postfix + " " + Localization.Get("ui.label.enemy") + " " + Localization.Get("missiontype.Infiltration.name") + ")";
+                        temp_tech_postfix += bonus_tech_level + color_postfix + " " + Localization.Get("ui.label.enemy") + " " + Localization.Get("missiontype.Infiltration.name") + " Squad)";
                         break;
                     }
                 default:
@@ -122,7 +122,7 @@ namespace ShowMissionInfoOnDetail
                 }
                 //bramfatura name logic
                 string temp_bram_id = mission.BramfaturaId;
-                if (!mission.IsStoryMission && (mission.ProcMissionType == ProceduralMissionType.Defense || mission.ProcMissionType == ProceduralMissionType.Control || mission.ProcMissionType == ProceduralMissionType.Security))
+                if (!mission.IsStoryMission && (mission.ProcMissionType == ProceduralMissionType.Defense ))
                 {
                     temp_bram_id = Data.Global.DefenseMissionsBramfaturaId;
                 }
@@ -141,7 +141,7 @@ namespace ShowMissionInfoOnDetail
             temp_appending_text += color_white_prefix + Localization.Get("ui.property.PowerContentration") + ":" + color_postfix + " " + temp_power_concentration + newline;
             temp_appending_text += color_white_prefix + Localization.Get("ui.property.FloorsCount") + ":" + color_postfix + " " + temp_floor_count + newline;
             temp_appending_text += color_white_prefix + "Bramfatura" + ":" + color_postfix + " " + temp_bramfatura_name + newline;
-
+            //Plugin.Logger.Log("guh");
             __instance._objectivesText.text = temp_appending_text.ConvertBrToNewLine() + __instance._objectivesText.text ;
         }
     }
