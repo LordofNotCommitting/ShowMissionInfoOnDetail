@@ -9,9 +9,11 @@ using HarmonyLib;
 using MGSC;
 using UnityEngine;
 
+using ModLoader_Bootstrap_ShowMissionInfoOnDetail;
+
 namespace ShowMissionInfoOnDetail
 {
-    public static class Plugin
+    public class Plugin : BootstrapMod
     {
 
         public static ConfigDirectories ConfigDirectories = new ConfigDirectories();
@@ -19,6 +21,12 @@ namespace ShowMissionInfoOnDetail
         public static ModConfig Config { get; private set; }
 
         public static Logger Logger = new Logger();
+
+        public Plugin(HookEvents hookEvents, bool isBeta) : base(hookEvents, isBeta)
+        {
+            hookEvents.AfterConfigsLoaded += AfterConfig;
+        }
+
 
         [Hook(ModHookType.AfterConfigsLoaded)]
         public static void AfterConfig(IModContext context)
