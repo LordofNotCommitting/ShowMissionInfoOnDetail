@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using static System.Collections.Specialized.BitVector32;
+using static UnityEngine.Random;
 
 
 
@@ -39,6 +41,7 @@ namespace ShowMissionInfoOnDetail
             string enemy_faction_name = Localization.Get("faction." + mission.VictimFactionId + ".name");
             string temp_tech_level = "";
             string temp_power_concentration = "";
+            string temp_enemy_count = "";
             string temp_floor_count = "";
             string temp_bramfatura_name = "";
             string temp_station_type = "";
@@ -48,8 +51,11 @@ namespace ShowMissionInfoOnDetail
             int bonus_tech_level = 0;
             string temp_tech_postfix = " (" + color_white_prefix + "+";
             //tooltip.MissionObjective
-                
 
+            int estimatedEnemyCountPerFloor = -1;
+            int estimatedPowerConcentrationPerFloor = -1;
+            int estimatedFloor = 0;
+            float powerPerUnit = -1f;
 
             switch (mission.ProcMissionType)
             {
@@ -92,6 +98,7 @@ namespace ShowMissionInfoOnDetail
                 temp_tech_level = "???";
                 temp_mission_type = Localization.Get("missiontype.story.name");
                 temp_power_concentration = "???";
+                temp_enemy_count = "???";
                 temp_floor_count = "???";
                 temp_bramfatura_name = "???";
                 temp_station_type = "???";
@@ -111,22 +118,27 @@ namespace ShowMissionInfoOnDetail
                 if (mission.ProcMissionType == ProceduralMissionType.BramfaturaInvasion)
                 {
                     
-                    temp_power_concentration = "(" + Localization.Get("faction.Unknown.name") + ")" ;
+                    temp_power_concentration = "(" + Localization.Get("faction.Unknown.name") + ")";
+                    temp_enemy_count = "(" + Localization.Get("faction.Unknown.name") + ")";
                     temp_floor_count = "(" + Localization.Get("faction.Unknown.name") + ")";
                 }
                 else {
-                    int num = 0;
-                    int num2 = 0;
                     foreach (KeyValuePair<string, DungeonGenerationPlan> keyValuePair in mission.LocationPlans)
                     {
                         if (mission.WorldStructure.GetLocation(keyValuePair.Key).ID.Contains("stage"))
                         {
-                            num += keyValuePair.Value.MonstersPointsLimit;
-                            num2++;
+                            estimatedFloor++;
                         }
                     }
-                    temp_power_concentration = num.ToString();
-                    temp_floor_count = num2.ToString();
+
+                    estimatedEnemyCountPerFloor = GetEstimatedEnemyCountPerFloor(mission);
+                    estimatedPowerConcentrationPerFloor = GetMonsterPointsPerFloor(mission, false);
+
+                    temp_power_concentration = estimatedPowerConcentrationPerFloor.ToString();
+
+                    temp_enemy_count = estimatedEnemyCountPerFloor.ToString();
+                    powerPerUnit = (float)(estimatedPowerConcentrationPerFloor / estimatedEnemyCountPerFloor);
+                    temp_floor_count = estimatedFloor.ToString();
                 }
                 //bramfatura name logic
                 string temp_bram_id = mission.BramfaturaId;
@@ -217,7 +229,31 @@ namespace ShowMissionInfoOnDetail
             temp_appending_text += color_white_prefix + Localization.Get("ui.label.enemy") + ":" + color_postfix + " " + color_faction_prefix + enemy_faction_name + color_postfix + newline;
             temp_appending_text += color_white_prefix + Localization.Get("ui.label.enemy") + " " + Localization.Get("tooltip.TechLevel") + ":" + color_postfix + " " + temp_tech_level + newline;
             temp_appending_text += color_white_prefix + Localization.Get("ui.label.mission") + ":" + color_postfix + " " + temp_mission_type + newline;
-            temp_appending_text += color_white_prefix + Localization.Get("tooltip.PowerContentration") + ":" + color_postfix + " " + temp_power_concentration + newline;
+            temp_appending_text += color_white_prefix + Localization.Get("tooltip.PowerContentration") + " Per " + Localization.Get("ui.label.floor") + ":" + color_postfix + " " + temp_power_concentration;
+            if (estimatedPowerConcentrationPerFloor > 0 && estimatedFloor > 1) 
+            {
+                temp_appending_text += " (" + color_white_prefix + "Total:" + color_postfix + " " + (estimatedPowerConcentrationPerFloor * estimatedFloor).ToString() + ")";
+            }
+            temp_appending_text += newline;
+            String temp_enemy_count_string = Localization.Get("tooltip.EstimatedEnemies");
+            string prefix = "/~{0}";
+            if (temp_enemy_count_string.StartsWith(prefix))
+            {
+                // Remove "/~{0}" and trim remaining leading white spaces
+                temp_enemy_count_string = temp_enemy_count_string.Substring(prefix.Length).TrimStart();
+            }
+
+            temp_enemy_count_string = StringExtensions.CapitalizeFirstNonAsian(temp_enemy_count_string);
+
+            temp_appending_text += color_white_prefix + temp_enemy_count_string + " Per " + Localization.Get("ui.label.floor") + ":" + color_postfix + " " + temp_enemy_count;
+            if (estimatedPowerConcentrationPerFloor > 0)
+            {
+                //temp_appending_text += " (" + color_white_prefix + "Total:" + color_postfix + " " + (estimatedEnemyCountPerFloor * estimatedFloor).ToString() + ", " + powerPerUnit.ToString("F2") + " " + color_white_prefix + Localization.Get("tooltip.PowerContentration") + "/" +temp_enemy_count_string + color_postfix + ")";
+                temp_appending_text += " (" + powerPerUnit.ToString("F2") + " " + color_white_prefix + Localization.Get("tooltip.PowerContentration") + "/" + temp_enemy_count_string + color_postfix + ")";
+            }
+            temp_appending_text += newline;
+
+
             temp_appending_text += color_white_prefix + Localization.Get("tooltip.FloorsCount") + ":" + color_postfix + " " + temp_floor_count + newline;
             temp_appending_text += color_white_prefix + "Station Type" + ":" + color_postfix + " " + temp_station_type + newline;
             temp_appending_text += color_white_prefix + "Bramfatura" + ":" + color_postfix + " " + temp_bramfatura_name + newline;
@@ -226,5 +262,110 @@ namespace ShowMissionInfoOnDetail
 
             //Localization.ActualizeFontAndSize(__instance._objectivesText, TextContext.LongText);
         }
+
+        static private int GetEstimatedEnemyCountPerFloor(Mission mission)
+        {
+            int returnval = 0;
+
+            MGSC.State _state = StateManager.ActiveState;
+            if (_state != null) {
+
+                Factions factions = _state.Get<Factions>();
+                Statistics statistics = _state.Get<Statistics>();
+                Difficulty difficulty = _state.Get<Difficulty>();
+                int monsterPointsPerFloor = GetMonsterPointsPerFloor(mission, mission.IsStoryMission);
+                List<UnitDropRecord> list = new List<UnitDropRecord>();
+                foreach (KeyValuePair<string, DungeonGenerationPlan> keyValuePair in mission.LocationPlans)
+                {
+                    string text;
+                    DungeonGenerationPlan dungeonGenerationPlan;
+                    text = keyValuePair.Key;
+                    dungeonGenerationPlan = keyValuePair.Value;
+                    string text2 = text;
+                    DungeonGenerationPlan dungeonGenerationPlan2 = dungeonGenerationPlan;
+                    if (text2.Contains("stage"))
+                    {
+                        string text3;
+                        int num;
+                        MissionSystem.GetFactionEquipmentId(factions, text2, mission, out text3, out num);
+                        num = Mathf.Clamp(num, 1, Data.Global.MaxTechLevel);
+                        list.AddRange(UnitGenerationSystem.GetUnitVariants(dungeonGenerationPlan2.MonstersTableIds, mission.VictimFactionId, num, default(UnitGenerationConditions)));
+                    }
+                }
+                float num2 = 0f;
+                foreach (UnitDropRecord unitDropRecord in list)
+                {
+                    num2 += unitDropRecord.Weight;
+                }
+                float num3 = 0f;
+                foreach (UnitDropRecord unitDropRecord2 in list)
+                {
+                    int num4 = (unitDropRecord2.UnitSize.Min + unitDropRecord2.UnitSize.Max) / 2;
+                    if (!mission.IsStoryMission)
+                    {
+                        num4 = Data.ProgressionDifficulty.GetMaxCreaturesGroupSize(statistics.GetStatistic(StatisticType.TotalMissionsComplete), num4, difficulty);
+                    }
+                    if (unitDropRecord2.LeaderSpawn.Any((Tuple<float, string> l) => l.Item2 != "none"))
+                    {
+                        num4++;
+                    }
+                    float num5 = (float)num4 * unitDropRecord2.Weight / num2;
+                    num3 += num5 * (float)monsterPointsPerFloor / unitDropRecord2.Points;
+                }
+                returnval = Mathf.RoundToInt(num3);
+            }
+
+            return returnval;
+        }
+
+        static private int GetMonsterPointsPerFloor(Mission mission, bool ignoreProgression)
+        {
+            int returnval = 0;
+
+            MGSC.State _state = StateManager.ActiveState;
+
+            if (_state != null)
+            {
+                Statistics statistics = _state.Get<Statistics>();
+                Difficulty difficulty = _state.Get<Difficulty>();
+                MagnumProgression magnumProgression = _state.Get<MagnumProgression>();
+                int floorsCount = MissionSystem.GetFloorsCount(mission);
+                int num = MissionSystem.GetTotalMonstersPoints(statistics, difficulty, mission, ignoreProgression) / MissionSystem.GetFloorsCount(mission);
+                int num2 = Mathf.RoundToInt(Data.ProcMissions.Get(mission.ProcMissionType).AdditionalSpawnMultiplier * (float)num / (float)floorsCount);
+                int num3 = Mathf.RoundToInt(Mathf.Clamp01((float)(magnumProgression.HyperWaveScanFloorBonus / floorsCount)) * (float)magnumProgression.HyperWaveEnemyFloorBonus);
+                int b = num + num2 + num3;
+                returnval = Mathf.Max(0, b);
+            }
+
+            return returnval;
+        }
+
+    }
+}
+
+public static class StringExtensions
+{
+    // A Regex pattern covering the main East Asian and South/Southeast Asian Unicode script blocks
+    private static readonly Regex AsianScriptRegex = new Regex(
+        @"^[\p{IsCJKUnifiedIdeographs}" +       // Chinese/Japanese/Korean common text
+          @"\p{IsCJKUnifiedIdeographsExtensionA}" +
+          @"\p{IsHiragana}\p{IsKatakana}" +    // Japanese scripts
+          @"\p{IsHangulSyllables}" +            // Korean script
+          @"\p{IsThai}\p{IsDevanagari}]",       // Thai and Indian/Hindi scripts
+        RegexOptions.Compiled);
+
+    public static string CapitalizeFirstNonAsian(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        // If the first character matches an Asian script block, return the string unchanged
+        if (AsianScriptRegex.IsMatch(input))
+        {
+            return input;
+        }
+
+        // Otherwise, capitalize only the first character and attach the rest
+        return char.ToUpper(input[0]) + input.Substring(1);
     }
 }
