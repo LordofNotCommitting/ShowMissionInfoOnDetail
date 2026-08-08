@@ -8,10 +8,12 @@ But more clear version since I just want screen to tell exactly who my enemy is.
 Changelog:
 
 v1.13:
-With Quasimorph v1.01. They updated the power display UI. As such I have updated my mod to display those info as well.
+
+With Quasimorph v1.01. Devs updated the power display UI. As such I have updated my mod to display those info as well.
 This mod also display "Concentration/Unit" count which should display how much ass kicking each of those units can do.
 
 v1.12:
+
 Slight tag update.
 
 v1.11:
