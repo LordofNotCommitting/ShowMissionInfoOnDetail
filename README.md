@@ -7,6 +7,10 @@ But more clear version since I just want screen to tell exactly who my enemy is.
 
 Changelog:
 
+v1.14:
+
+After VERY EARLY ship unlock, if you have scanner unlocked + easy starting mission. you can reduce the enemy number to 0... which caused division by 0 error. Fixed.
+
 v1.13:
 
 With Quasimorph v1.01. Devs updated the power display UI. As such I have updated my mod to display those info as well.
