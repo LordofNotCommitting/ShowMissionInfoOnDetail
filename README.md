@@ -7,6 +7,10 @@ But more clear version since I just want screen to tell exactly who my enemy is.
 
 Changelog:
 
+v1.15:
+
+I forgot to add Farm Colony into the list of the tileset name list. Now included.
+
 v1.14:
 
 After VERY EARLY ship unlock, if you have scanner unlocked + easy starting mission. you can reduce the enemy number to 0... which caused division by 0 error. Fixed.
