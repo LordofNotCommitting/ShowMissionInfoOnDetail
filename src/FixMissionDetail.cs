@@ -137,7 +137,14 @@ namespace ShowMissionInfoOnDetail
                     temp_power_concentration = estimatedPowerConcentrationPerFloor.ToString();
 
                     temp_enemy_count = estimatedEnemyCountPerFloor.ToString();
-                    powerPerUnit = (float)(estimatedPowerConcentrationPerFloor / estimatedEnemyCountPerFloor);
+                    if (estimatedEnemyCountPerFloor > 0)
+                    {
+                        powerPerUnit = (float)(estimatedPowerConcentrationPerFloor / estimatedEnemyCountPerFloor);
+                    }
+                    else 
+                    {
+                        powerPerUnit = 0;
+                    }
                     temp_floor_count = estimatedFloor.ToString();
                 }
                 //bramfatura name logic
@@ -213,6 +220,12 @@ namespace ShowMissionInfoOnDetail
                         {
                             //orbital station
                             temp_station_type = Localization.Get("station.Juphub.type");
+                            break;
+                        }
+                    case "ColonyFarm":
+                        {
+                            //orbital station
+                            temp_station_type = Localization.Get("station.NewKent.type");
                             break;
                         }
                     default:
