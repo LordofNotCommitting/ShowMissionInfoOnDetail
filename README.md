@@ -7,6 +7,10 @@ But more clear version since I just want screen to tell exactly who my enemy is.
 
 Changelog:
 
+v1.16:
+
+Ditch usage of ticking time bomb that is State.Resolve function.
+
 v1.15:
 
 I forgot to add Farm Colony into the list of the tileset name list. Now included.
